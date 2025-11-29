@@ -130,18 +130,29 @@ async def start_public(bot, query):
                     queued_messages = []
                     await asyncio.sleep(10)
 
+           # ... (inside start_public) ...
+
             else:
-                new_caption = custom_caption(item, caption)
+                # 1. Generate the base caption using the existing custom function
+                base_caption = custom_caption(item, caption)
+                
+                # 2. 🚨 NEW: Clean the caption by removing configured words
+                cleaned_caption = await clean_caption(user_id, base_caption)
+                
                 info = {
                     "msg_id": item.id,
                     "media": media(item),
-                    "caption": new_caption,
+                    # 3. Use the cleaned caption for forwarding
+                    "caption": cleaned_caption, 
                     "button": buttons,
                     "protect": protect,
                 }
                 await copy_message(client, info, msg, sts)
                 sts.add('total_files')
                 await asyncio.sleep(sleep_time)
+
+# ...
+
 
     except Exception as e:
         await msg_edit(msg, f"<b>Error:</b>\n<code>{e}</code>", wait=True)
