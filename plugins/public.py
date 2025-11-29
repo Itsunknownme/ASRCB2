@@ -14,49 +14,6 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQ
 from .public import clean_caption # <--- ADD THIS LINE
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
-# ================== NEW: CAPTION CLEANING FUNCTION ==================#
-
-async def clean_caption(user_id: int, caption: str) -> str:
-    """Removes configured words from the given caption."""
-    if not caption:
-        return ""
-    
-    # 1. Fetch the list of words to remove from the database
-    words_to_remove = await db.get_remove_words(user_id)
-    
-    if not words_to_remove:
-        return caption
-        
-    # Create a set of words for fast lookup and convert to lowercase
-    remove_set = {word.lower() for word in words_to_remove}
-    
-    # 2. Split the caption into words
-    # Use re.split to handle various separators (spaces, newlines, etc.)
-    # The regex r'(\s+)' ensures that the whitespace separators are kept
-    # in the split list, so we can rejoin them correctly.
-    parts = re.split(r'(\s+)', caption)
-    
-    cleaned_parts = []
-    
-    for part in parts:
-        # Check if the part is a word (not just whitespace)
-        if part.strip():
-            # Check if the lowercased part matches any word in the remove set
-            # We strip punctuation/non-word characters from the start/end of the word
-            # for a more robust match, but keep it in the caption if not matched.
-            
-            # Simple word extraction:
-            simple_word = re.sub(r'^\W+|\W+$', '', part).lower()
-            
-            if simple_word not in remove_set:
-                cleaned_parts.append(part)
-        else:
-            # Keep the whitespace separator
-            cleaned_parts.append(part)
-            
-    # 3. Rejoin the parts to form the new caption
-    return "".join(cleaned_parts).strip()
-
 #===================Run Function===================#
 
 @Client.on_message(filters.private & filters.command(["fwd", "forward"]))
