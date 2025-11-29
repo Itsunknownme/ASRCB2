@@ -10,10 +10,6 @@ from pyrogram.errors.exceptions.not_acceptable_406 import ChannelPrivate as Priv
 from pyrogram.errors.exceptions.bad_request_400 import ChannelInvalid, ChatAdminRequired, UsernameInvalid, UsernameNotModified, ChannelPrivate
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 
-# ... (Existing imports) ...
-from .public import clean_caption # <--- ADD THIS LINE
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-
 #===================Run Function===================#
 
 @Client.on_message(filters.private & filters.command(["fwd", "forward"]))
