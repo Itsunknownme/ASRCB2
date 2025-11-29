@@ -86,6 +86,8 @@ class Database:
             "protect": None,
             "button": None,
             "db_uri": None,
+            # ADDED 'remove_words' field with an empty list as default
+            "remove_words": [], 
             "filters": {
                 "poll": True,
                 "text": True,
@@ -100,7 +102,10 @@ class Database:
         }
 
         user = await self.col.find_one({"id": int(id)})
-        return user.get("configs", default) if user else default
+        # Make sure to merge the retrieved configs with the default if it exists
+        user_configs = user.get("configs", {}) if user else {}
+        # This merges the default values with any existing user configs
+        return {**default, **user_configs} 
 
     async def get_filters(self, user_id):
         filters = (await self.get_configs(user_id))["filters"]
@@ -167,19 +172,26 @@ class Database:
 
     async def get_all_frwd(self):
         return self.nfy.find({})
-# Store remove words (list of strings)
-async def set_remove_words(user_id: int, words: list):
-    words_str = ",".join(words)
-    query = "UPDATE configs SET remove_words = ? WHERE user_id = ?"
-    await database_execute(query, (words_str, user_id))
 
-# Get remove words
-async def get_remove_words(user_id: int):
-    query = "SELECT remove_words FROM configs WHERE user_id = ?"
-    result = await database_fetchone(query, (user_id,))
-    if result and result['remove_words']:
-        return [w.strip() for w in result['remove_words'].split(",")]
-    return []
+    # -----------------------------------------------------
+    # ---------- NEW: REMOVE WORDS FEATURE FUNCTIONS ----------
+    # -----------------------------------------------------
+
+    async def set_remove_words(self, user_id: int, words: list):
+        """Saves a list of words to be removed from forwarded captions."""
+        # Use $set to update the 'configs.remove_words' field
+        await self.col.update_one(
+            {"id": user_id},
+            {"$set": {"configs.remove_words": words}},
+            upsert=True  # Create the document if it doesn't exist
+        )
+
+    async def get_remove_words(self, user_id: int) -> list:
+        """Retrieves the list of words to be removed."""
+        configs = await self.get_configs(user_id)
+        # It's guaranteed to be a list because we added it to the default in get_configs()
+        return configs.get("remove_words", [])
 
 
 db = Database(Config.DATABASE_URI, Config.DATABASE_NAME)
+        
