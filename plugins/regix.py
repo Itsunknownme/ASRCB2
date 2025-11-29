@@ -88,9 +88,6 @@ async def start_public(bot, query):
 
     sleep_time = 1 if bot_info["is_bot"] else 10
 
-    # ───────────────────────────────────────────
-    # FORWARDING LOOP
-    # ───────────────────────────────────────────
     try:
         queued_messages = []
         count = 0
@@ -110,7 +107,6 @@ async def start_public(bot, query):
 
             sts.add('fetched')
 
-            # Filters
             if item in ["DUPLICATE", "FILTERED"]:
                 sts.add('filtered')
                 continue
@@ -119,7 +115,6 @@ async def start_public(bot, query):
                 sts.add('deleted')
                 continue
 
-            # Forward with tag
             if forward_tag:
                 queued_messages.append(item.id)
                 remaining = sts.get('total') - sts.get('fetched')
@@ -131,7 +126,22 @@ async def start_public(bot, query):
                     await asyncio.sleep(10)
 
             else:
+                # ------------------------------------------------------------------ #
+                # NEW FEATURE: Load remove_words list from DB
+                user_config = await db.get_configs(user_id)
+                remove_words = user_config.get("remove_words", [])
+                # ------------------------------------------------------------------ #
+
                 new_caption = custom_caption(item, caption)
+
+                # ------------------------------------------------------------------ #
+                # NEW FEATURE: Clean caption from unwanted words
+                if new_caption and remove_words:
+                    for bad in remove_words:
+                        if bad:
+                            new_caption = new_caption.replace(bad, "")
+                # ------------------------------------------------------------------ #
+
                 info = {
                     "msg_id": item.id,
                     "media": media(item),
@@ -139,6 +149,7 @@ async def start_public(bot, query):
                     "button": buttons,
                     "protect": protect,
                 }
+
                 await copy_message(client, info, msg, sts)
                 sts.add('total_files')
                 await asyncio.sleep(sleep_time)
@@ -185,7 +196,7 @@ async def copy_message(client, msg, callback, sts):
 
 
 # ───────────────────────────────────────────
-# HELPER: FORWARD BULK
+# FORWARD BULK
 # ───────────────────────────────────────────
 async def forward(client, msg_ids, callback, sts, protect):
     try:
@@ -368,4 +379,4 @@ def TimeFormatter(ms: int) -> str:
 def retry_btn(frwd_id):
     return InlineKeyboardMarkup(
         [[InlineKeyboardButton("Retry", f"start_public_{frwd_id}")]]
-    )
+            )
