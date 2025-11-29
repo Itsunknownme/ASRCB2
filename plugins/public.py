@@ -11,8 +11,8 @@ from pyrogram.errors.exceptions.bad_request_400 import ChannelInvalid, ChatAdmin
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 
 # ... (Existing imports) ...
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
-
+from .public import clean_caption # <--- ADD THIS LINE
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 # ================== NEW: CAPTION CLEANING FUNCTION ==================#
 
