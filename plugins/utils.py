@@ -1,7 +1,45 @@
 import time as tm
 from database import db 
 from .test import parse_buttons
+# Assuming you have database imports in utils.py (or need to add them)
+import re
+from database import db
+# ... other existing imports ...
 
+# ================== CAPTION CLEANING FUNCTION ==================#
+async def clean_caption(user_id: int, caption: str) -> str:
+    """Removes configured words from the given caption."""
+    if not caption:
+        return ""
+    
+    # 1. Fetch the list of words to remove from the database
+    words_to_remove = await db.get_remove_words(user_id)
+    
+    if not words_to_remove:
+        return caption
+        
+    # Create a set of words for fast lookup and convert to lowercase
+    remove_set = {word.lower() for word in words_to_remove}
+    
+    # 2. Split the caption into words
+    parts = re.split(r'(\s+)', caption)
+    
+    cleaned_parts = []
+    
+    for part in parts:
+        if part.strip():
+            # Simple word extraction (remove non-word characters from start/end)
+            simple_word = re.sub(r'^\W+|\W+$', '', part).lower()
+            
+            if simple_word not in remove_set:
+                cleaned_parts.append(part)
+        else:
+            # Keep the whitespace separator
+            cleaned_parts.append(part)
+            
+    # 3. Rejoin the parts to form the new caption
+    return "".join(cleaned_parts).strip()
+    
 STATUS = {}
 
 class STS:
