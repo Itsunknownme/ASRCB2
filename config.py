@@ -15,6 +15,7 @@ class Config:
 class temp(object): 
     lock = {}
     CANCEL = {}
+    SETTING_WORDS = {} 
     forwardings = 0
     BANNED_USERS = []
     IS_FRWD_CHAT = []
