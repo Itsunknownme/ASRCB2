@@ -1,0 +1,54 @@
+{
+  "name": "Auto-Forward-Bot-V2",
+  "description": "Telegram's Best Smart Plugin File Forward Bot",
+  "logo": "https://telegra.ph/file/5c3499c3b2ec282cf0c4e.jpg",
+  "stack": "container",
+  "keywords": [
+    "telegram",
+    "smart-bot",
+    "file-forward",
+    "pyrogram"
+  ],
+  "website": "https://github.com/devgaganin/Auto-Forward-Bot-V2",
+  "repository": "https://github.com/devgaganin/Auto-Forward-Bot-V2",
+  "success_url": "https://t.me/devggn",
+
+  "env": {
+    "API_ID": {
+      "description": "Get this value from https://my.telegram.org or @UseTGSBot",
+      "required": true
+    },
+    "API_HASH": {
+      "description": "Get this value from https://my.telegram.org or @UseTGSBot",
+      "required": true
+    },
+    "BOT_TOKEN": {
+      "description": "Your bot token from @BotFather",
+      "required": true
+    },
+    "BOT_OWNER_ID": {
+      "description": "Your Telegram User ID",
+      "required": true
+    },
+    "BANNED_USERS": {
+      "description": "Comma-separated user IDs to ban (optional)",
+      "required": false
+    },
+    "DATABASE_NAME": {
+      "description": "Database name for filters",
+      "value": "document",
+      "required": false
+    },
+    "DATABASE_URI": {
+      "description": "MongoDB URI. Example: mongodb+srv://user:pass@cluster/db",
+      "required": true
+    }
+  },
+
+  "formation": {
+    "worker": {
+      "quantity": 1,
+      "size": "free"
+    }
+  }
+}
