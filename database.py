@@ -167,6 +167,19 @@ class Database:
 
     async def get_all_frwd(self):
         return self.nfy.find({})
+# Store remove words (list of strings)
+async def set_remove_words(user_id: int, words: list):
+    words_str = ",".join(words)
+    query = "UPDATE configs SET remove_words = ? WHERE user_id = ?"
+    await database_execute(query, (words_str, user_id))
+
+# Get remove words
+async def get_remove_words(user_id: int):
+    query = "SELECT remove_words FROM configs WHERE user_id = ?"
+    result = await database_fetchone(query, (user_id,))
+    if result and result['remove_words']:
+        return [w.strip() for w in result['remove_words'].split(",")]
+    return []
 
 
 db = Database(Config.DATABASE_URI, Config.DATABASE_NAME)
